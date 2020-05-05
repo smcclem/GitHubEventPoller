@@ -1,0 +1,4 @@
+/project/user-app/src/main/java/dev/appsody/starter/health/StarterReadinessCheck.java
+/project/user-app/src/main/java/dev/appsody/starter/GitHubPoller.java
+/project/user-app/src/main/java/dev/appsody/starter/GitHubPollerService.java
+/project/user-app/src/main/java/dev/appsody/starter/health/StarterLivenessCheck.java
