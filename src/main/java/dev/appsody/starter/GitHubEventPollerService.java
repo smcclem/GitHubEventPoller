@@ -16,6 +16,9 @@ import java.util.concurrent.TimeUnit;
 @Startup
 public class GitHubEventPollerService {
 	
+	// A service to convert a GitHub event obtained through the Rest API
+	// to an event as as GitHub webhook call.
+	
     @Resource
     public ManagedScheduledExecutorService executor;
 
