@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -86,4 +88,23 @@ public class Payload {
         return new EqualsBuilder().append(action, rhs.action).append(number, rhs.number).append(additionalProperties, rhs.additionalProperties).append(pullRequest, rhs.pullRequest).isEquals();
     }
 
+    public static String getPayload(Payload payload) {
+        try {
+            return new ObjectMapper().writeValueAsString(payload);
+        } catch (Exception err) {
+            // TODO log
+            return null;
+        }
+    }
+
+    public static Payload getPayload(String jsonString) {
+    	Payload payload = null;
+        try {
+        	payload = new ObjectMapper().readValue(jsonString.getBytes(), Payload.class);
+        } catch (Exception e) {
+            // TODO: Log
+        }
+        return payload;
+    }
+    
 }
