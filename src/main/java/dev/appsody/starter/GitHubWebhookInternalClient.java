@@ -48,14 +48,14 @@ import io.kabanero.github.api.Event;
 import io.kabanero.github.api.Payload;
 
 
-public class GitHubRestAPIClient {
+public class GitHubWebhookInternalClient {
 
 	private String authToken = null;
 	private Date authTokenCreated;
 	private String tenantId = null;
 	private String camVersion = null;
 	private HttpClientBuilder clientBuilder = null;
-	private String ipAddress = "api.github.com";
+	private String ipAddress = "webhook-kabanero.apps.pony.os.fyre.ibm.com";
 	private String userName;
 	private String password;
 
@@ -65,7 +65,7 @@ public class GitHubRestAPIClient {
 	// Reuse the same context in a thread to reuse cookies
 	private ThreadLocal<HttpContext> context;
 
-	public GitHubRestAPIClient() throws RuntimeException {
+	public GitHubWebhookInternalClient() throws RuntimeException {
 
 		this.context = new ThreadLocal<HttpContext>() {
 			@Override
@@ -108,6 +108,27 @@ public class GitHubRestAPIClient {
 	}
 
 
+	public JSONObject triggerInternalWebhook(String postPath, String parametersMap, Header[] headers) throws IOException {
+		
+		HttpPost postMethod = new HttpPost("https://" + ipAddress + postPath);
+		StringEntity params = new StringEntity(parametersMap);
+		postMethod.setEntity(params);
+		StringBuilder output = new StringBuilder();
+		if (headers != null) {
+			for (Header header : headers) {
+				postMethod.addHeader(header);
+			}
+		}
+		// Make request and handle errors
+		StatusLine status = executeWithRetries(postMethod, output, new Integer[] { 200 }, new Integer[] { 400, 401, 403, 404 });
+		if (status.getStatusCode() != 202 && status.getStatusCode() != 201 && status.getStatusCode() != 200) {
+			// TODO : LOGGER.log(Level.SEVERE, "Failed: HTTP error code : " + status + ", response : " + output + "performing post with path" + postPath);
+			// TODO throw new StatusCodeException(status, "body: " + output.toString());
+		}
+		
+		JSONObject obj = JSONObject.parse(output.toString());
+		return obj;
+	}
 
 	private JSONObject post(String postPath, HashMap<String, String> parametersMap, Header[] headers) throws IOException {
 		HttpPost postMethod = new HttpPost("https://" + ipAddress + postPath);
@@ -166,6 +187,7 @@ public class GitHubRestAPIClient {
 				if (expectedSet.contains(status)) {
 					if (retries > 0) {
 						// TODO:LOGGER.log(Level.INFO, "TerraFormRestClient " + request.getMethod() + " " + request.getURI() + ": Reached CAM after retrying " + retries + " times(s)");
+						System.out.println("TerraFormRestClient " + request.getMethod() + " " + request.getURI() + ": Reached CAM after retrying " + retries + " times(s)");
 					}
 					return statusLine;
 				}
@@ -189,7 +211,7 @@ public class GitHubRestAPIClient {
 		} else {
 			// TODO: LOGGER.log(Level.SEVERE, "Failed TerraFormRestClient " + request.getMethod() + " " + request.getURI() + ": HTTP error code : " + statusLine.getStatusCode() + ", response : " + output);
 			// TODO : throw new StatusCodeException(statusLine, "body: " + output.toString());
-			return null; // TODO
+			return statusLine; // TODO
 		}
 	}
 
@@ -257,13 +279,12 @@ public class GitHubRestAPIClient {
 
     public Event[] getEvents() throws IOException {
 
-	    return Event.getEvents(get("/smcclem/GitHubEventPoller"));
-	    
+	    return Event.getEvents(get("/repos/kabanero-io/kabanero-pipelines/events"));
 
     }
     
 	public static void main(String[] args) throws IOException {
-
+/*
 		GitHubRestAPIClient test2 = new GitHubRestAPIClient();
 		Event[] events = Event.getEvents(test2.get("/repos/kabanero-io/kabanero-pipelines/events"));
 		for (Event event : events) {
@@ -275,5 +296,8 @@ public class GitHubRestAPIClient {
 				System.out.println(payload.getNumber());
 			}
 		}
+		
+		*/
 	}
 }
+

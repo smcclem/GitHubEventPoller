@@ -26,13 +26,14 @@ public class GitHubEventPollerService {
 	// Fixed size, circular fifo queue to record serviced github events
 	private Queue<Event> githubEventsQueue = new CircularFifoQueue<Event>(200);
 	private GitHubRestAPIClient gitHubRestAPIClient = new GitHubRestAPIClient();
+	private GitHubWebhookInternalClient gitHubWebhookInternalClient = new GitHubWebhookInternalClient();
 	
     @Resource
     public ManagedScheduledExecutorService executor;
 
     @PostConstruct
     public void startup() {
-    	executor.scheduleAtFixedRate(new GitHubEventPoller(githubEventsQueue, gitHubRestAPIClient), 0, 1, TimeUnit.MINUTES);
+    	executor.scheduleAtFixedRate(new GitHubEventPoller(githubEventsQueue, gitHubRestAPIClient, gitHubWebhookInternalClient), 0, 1, TimeUnit.MINUTES);
     }
 
 
