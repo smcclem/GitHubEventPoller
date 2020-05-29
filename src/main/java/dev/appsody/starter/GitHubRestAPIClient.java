@@ -257,8 +257,9 @@ public class GitHubRestAPIClient {
 
     public Event[] getEvents() throws IOException {
 
-	    return Event.getEvents(get("/smcclem/GitHubEventPoller"));
-	    
+    	
+	    // return Event.getEvents(get("/repos/kabanero-io/kabanero-pipelines/events"));
+	    return Event.getEvents(get("/repos/smcclem/GitHubEventPoller/events"));	    
 
     }
     
